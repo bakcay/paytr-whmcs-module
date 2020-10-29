@@ -1,0 +1,39 @@
+/**
+ * Created by PhpStorm.
+ * User: bunyaminakcay
+ * Project name isinuzmani 
+ * 16.05.2020 01:43
+ * Bünyamin AKÇAY <bunyamin@bunyam.in>
+ */
+#modack{
+    background: rgb(255, 255, 255);
+    background: linear-gradient(0deg, rgb(232, 232, 232) 0%, rgba(249,249,249,1) 100%);
+    border-bottom: 1px solid #d6d6d6;
+}
+#modackimg{
+    width: 200px;
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+.uzmanpostamodulerow input,.uzmanpostamodulerow select{
+    width: 100%;
+}
+input[name="packageconfigoption[4]"]{
+    display: none;
+}
+.uinf p {
+    line-height: 9px;
+    font-size: 13px;
+}
+.uinf p span {
+    font-weight: bold;
+}
+.uinf p:nth-child(1) {
+    color: green;
+    font-weight: bold;
+    float: right;
+}
+#mmck{
+    margin-top: 1px;
+}
