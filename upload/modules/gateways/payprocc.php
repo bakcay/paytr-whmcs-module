@@ -14,8 +14,8 @@ if (!defined("WHMCS")) {
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-define('payprocc_version','1.1');
-define('payprocc_name','PAYTR PRO2');
+define('payprocc_version','1.4.Stable');
+define('payprocc_name','PayTR Pro');
 
 function payprocc_MetaData() {
     return [
@@ -27,9 +27,11 @@ function payprocc_MetaData() {
 
 function payprocc_config() {
 
+    $sysurl = Capsule::table('tblconfiguration')->where('setting','SystemURL')->value('value');
+
     $version = payprocc_version;
     $imagedesc=payprocc_name .' '.payprocc_version.'<br>Destek : <a href="mailto:bunyamin@bunyam.in">bunyamin@bunyam.in</a><br><a href="javascript:void(0)" target="_blank">Dökümantasyon linki</a>';
-
+    $imagedesc2='<a href="https://www.paytr.com/magaza/ayarlar" target="_blank">PayTR Panelinde Ayarlar sekmesinde</a> "BİLDİRİM URL" aşağıdakini ayarlayın<br><br><code>'.$sysurl . 'modules/gateways/callback/payproccfallback.php</code>';
     return [
         // the friendly display name for a payment gateway should be
         // defined here for backwards compatibility
@@ -44,7 +46,7 @@ function payprocc_config() {
             'Type'         => 'text',
             'Size'         => '25',
             'Default'      => '',
-            'Description'  => 'MerchantID ',
+            'Description'  => 'Mağaza No (merchant_id) ',
         ],
 
         'merchantkey'  => [
@@ -52,7 +54,7 @@ function payprocc_config() {
             'Type'         => 'password',
             'Size'         => '25',
             'Default'      => '',
-            'Description'  => 'MerchantKey',
+            'Description'  => 'Mağaza Parola (merchant_key). Gizli tutun.',
         ],
 
         'merchantsalt'  => [
@@ -60,7 +62,7 @@ function payprocc_config() {
             'Type'         => 'password',
             'Size'         => '25',
             'Default'      => '',
-            'Description'  => 'MerchantSalt',
+            'Description'  => 'Mağaza Gizli Anahtar (merchant_salt). Gizli tutun',
         ],
 
 
@@ -69,7 +71,7 @@ function payprocc_config() {
             'Type'         => 'text',
             'Size'         => '25',
             'Default'      => 'Ödeme Yap',
-            'Description'  => ' ',
+            'Description'  => 'Müşterinin göreceği Ödeme yapma butonu yazısı.',
         ],
 
         'installament' => [
@@ -90,33 +92,20 @@ function payprocc_config() {
                 12  => '12 Taksit'
             ],
             //'Taksitlendirme Yok,2 Taksit,3 Taksit,4 Taksit,5 Taksit,6 Taksit,7 Taksit,8 Taksit,9 Taksit,10 Taksit,11 Taksit,12 Taksit',
-            'Description'  => 'En Fazla Taksit sayısı',
+            'Description'  => 'En Fazla seçilebilecek taksit sayısı',
         ],
         'orderprefix'  => [
             'FriendlyName' => 'Sipariş Ön Eki',
             'Type'         => 'text',
             'Size'         => '25',
-            'Default'      => '',
-            'Description'  => 'Siparişiniz Önekfaturano olacak <script type="text/javascript"> var imagedesc=\''.$imagedesc.'\'; </script> <link href="https://cdn.bunyam.in/paytr/main.css?v='.$version.'" rel="stylesheet" /> <script type="text/javascript" src="https://cdn.bunyam.in/paytr/main.js?v='.$version.'"></script>',
+            'Default'      => 'FATURA',
+            'Description'  => 'Sipariş numaranız örneğin "FATURA12345" olacak. Türkçe karakter kullanmayın, Yanlızca A-Z <script type="text/javascript"> var imagedesc=\''.$imagedesc.'\';  var imagedesc2=\''.$imagedesc2.'\'; </script> <link href="https://cdn.bunyam.in/paytr/main.css?v='.$version.'" rel="stylesheet" /> <script type="text/javascript" src="https://cdn.bunyam.in/paytr/main.js?v='.$version.'"></script>',
         ],
-        'testmode' => [
+        'testingmode' => [
             'FriendlyName' => 'Test Modu',
             'Type' => 'yesno',
             'Description' => 'Yanlızca Test Modu için kullanın. Canlı için kullanmayın.',
-        ],
-        /*
-        'processing' => [
-            'FriendlyName' => 'Fiyatlandırma',
-            "Type"         => 'dropdown',
-            "Options"      => [
-                'Faturanın Kuru Uygulansın',
-                'TCMB Üzerinden kur TL e çevrilsin',
-                'TCMB Üzerinden kur USD e çevrilsin',
-                'TCMB Üzerinden kur EUR a çevrilsin',
-            ],
-            'Description'  => '',
-        ],
-        */
+        ]
 
     ];
 }
@@ -137,7 +126,7 @@ function payprocc_remoteinput($params) {
     $merchant_key      = $params['merchantkey'];
     $merchant_salt     = $params['merchantsalt'];
     $installament      = $params['installament'];
-    $testmode          = $params['testmode'];
+    $testmode          = $params['testingmode'];
     $prefix            = trim($params['orderprefix']);
     $email             = $params['clientdetails']['email'];
     $clientid          = $params['clientdetails']['id'];
@@ -148,8 +137,8 @@ function payprocc_remoteinput($params) {
     $user_address      = $params['clientdetails']['address1'] . ' ' . $params['clientdetails']['address2'] . ' ' . $params['clientdetails']['city'] . ' ' . $params['clientdetails']['state'];
     $phonenumber       = $params['clientdetails']['phonenumber'];
     $phonenumber       = str_replace('+90.', '', $phonenumber);
-    $merchant_ok_url   = $params['systemurl'] . 'modules/gateways/callback/remoteinputgateway.php';
-    $merchant_fail_url = $params['systemurl'] . 'modules/gateways/callback/remoteinputgateway.php';
+    $merchant_ok_url   = $params['systemurl'] . 'modules/gateways/callback/payprocc.php?&invoiceid='.$invoiceid.'&result=success';
+    $merchant_fail_url = $params['systemurl'] . 'modules/gateways/callback/payprocc.php?&invoiceid='.$invoiceid.'&result=failed';
     $timeout_limit     = "30";
     $debug_on          = $testmode == 'on';
     $test_mode         = $testmode == 'on';

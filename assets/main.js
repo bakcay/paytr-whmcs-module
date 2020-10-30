@@ -13,8 +13,9 @@ $( document ).ready(function() {
         '<tr id="modack"> ' +
         '<td colspan="2"> ' +
         '<div class="row"> ' +
-          '<div class="col-md-4"><img src="https://cdn.bunyam.in/paytr/logo.png" id="modackimg"></div>' +
-          '<div class="col-md-8"><h5 id="mmck">' + imagedesc+ '</h5></div>'  +
+          '<div class="col-md-3"><img src="https://cdn.bunyam.in/paytr/logo.png" id="modackimg"></div>' +
+          '<div class="col-md-3"><h5 id="mmck">' + imagedesc+ '</h5></div>'  +
+          '<div class="col-md-6"><h5 id="mmck">' + imagedesc2+ '</h5></div>'  +
         '</div> ' +
         '</td> ' +
         '</tr>'
