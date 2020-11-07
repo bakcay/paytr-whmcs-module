@@ -14,7 +14,7 @@ if (!defined("WHMCS")) {
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-define('payprocc_version','1.4.Stable');
+define('payprocc_version','1.5.Stable');
 define('payprocc_name','PayTR Pro');
 
 function payprocc_MetaData() {
