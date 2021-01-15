@@ -20,11 +20,13 @@ $merchant_oid      = $_POST['merchant_oid'];
 $merchant_key      = $gwparams['merchantkey'];
 $merchant_salt     = $gwparams['merchantsalt'];
 $installment       = $_POST['installment_count'];
-$invoice_id        = str_replace($prefix, '', $merchant_oid);
 $status            = $_POST['status'];
 $amount            = $_POST['total_amount'];
 $_hash             = $_POST['hash'];
 $hash              = base64_encode(hash_hmac('sha256', $merchant_oid . $merchant_salt . $status . $amount, $merchant_key, true));
+$merchant_oid_1    = str_replace($prefix, '', $merchant_oid);
+$merchant_oid_2    = explode('FT', $merchant_oid_1);
+$invoice_id        = $merchant_oid_2[1];
 
 
 // Die if module is not active.
@@ -53,4 +55,4 @@ if ($installment > 1) {
     $transaction_name .= '_' . $installment . 'Taksit';
 }
 
-addInvoicePayment($invoice_id, $transaction_name, '', '', $gwparams['name']);
+addInvoicePayment($invoice_id, $transaction_name, '', '', $gatewayModuleName);

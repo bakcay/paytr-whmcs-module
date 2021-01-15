@@ -14,7 +14,7 @@ if (!defined("WHMCS")) {
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-define('payprocc_version','1.5.Stable');
+define('payprocc_version','1.4.Stable');
 define('payprocc_name','PayTR Pro');
 
 function payprocc_MetaData() {
@@ -112,6 +112,7 @@ function payprocc_config() {
 
 
 function payprocc_nolocalcc() {
+
 }
 
 
@@ -128,7 +129,7 @@ function payprocc_remoteinput($params) {
     $installament      = $params['installament'];
     $testmode          = $params['testingmode'];
     $prefix            = trim($params['orderprefix']);
-    $email             = $params['clientdetails']['email'];
+    $email             = trim(mb_strtolower($params['clientdetails']['email']));
     $clientid          = $params['clientdetails']['id'];
     $invoiceid         = $params['invoiceid'];
     $currency          = $params['currency'];
@@ -137,11 +138,18 @@ function payprocc_remoteinput($params) {
     $user_address      = $params['clientdetails']['address1'] . ' ' . $params['clientdetails']['address2'] . ' ' . $params['clientdetails']['city'] . ' ' . $params['clientdetails']['state'];
     $phonenumber       = $params['clientdetails']['phonenumber'];
     $phonenumber       = str_replace('+90.', '', $phonenumber);
-    $merchant_ok_url   = $params['systemurl'] . 'modules/gateways/callback/payprocc.php?&invoiceid='.$invoiceid.'&result=success';
-    $merchant_fail_url = $params['systemurl'] . 'modules/gateways/callback/payprocc.php?&invoiceid='.$invoiceid.'&result=failed';
+    $merchant_ok_url   = $params['systemurl'] . 'modules/gateways/callback/payprocc.php?&invoiceid=' . $invoiceid . '&result=success';
+    $merchant_fail_url = $params['systemurl'] . 'modules/gateways/callback/payprocc.php?&invoiceid=' . $invoiceid . '&result=failed';
     $timeout_limit     = "30";
     $debug_on          = $testmode == 'on';
     $test_mode         = $testmode == 'on';
+
+    //$curdetail = calc_on_invoice($invoiceid);
+    //$payment_amount=($curdetail['total_try'])*100;
+    $currency='TRY';
+
+    $user_name    = payproccc_normalizetr($user_name);
+    $user_address = payproccc_normalizetr($user_address);
 
 
 	$no_installment	= 0;
@@ -159,10 +167,15 @@ function payprocc_remoteinput($params) {
 	$user_phone = $phonenumber;
 
 
+
+
     if(strlen($prefix)<1){
         $prefix='ORDER';
     }
-    $merchant_oid = "{$prefix}{$invoiceid}";
+
+    $rand =rand(1000,9999).'FT';
+
+    $merchant_oid = "{$prefix}{$rand}{$invoiceid}";
 
 	## Müşterinin sepet/sipariş içeriği
 	$user_basket = "";
@@ -171,7 +184,12 @@ function payprocc_remoteinput($params) {
         ->where('invoiceid',$invoiceid)
         ->implode('description',' ');
 
-	$user_basket = base64_encode(json_encode([[$_u1, $params['amount'] , 1]]));
+	$_u1 = payproccc_normalizetr($_u1);
+	if(strlen($_u1)>250){
+	    $_u1 = substr($_u1,0,250);
+    }
+
+	$user_basket = base64_encode(json_encode([[ $_u1 , number_format(($payment_amount/100),2) , 1 ]]));
 
 
 	if( isset( $_SERVER["HTTP_CLIENT_IP"] ) ) {
@@ -226,16 +244,17 @@ function payprocc_remoteinput($params) {
 	curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 
 	$result = @curl_exec($ch);
+	$head = curl_getinfo($ch);
 	$err_no = curl_errno($ch);
 	curl_close($ch);
 
-	logTransaction($params["name"], ['form_data'=>$post_vals,'response'=>$result], "Request");
+	logTransaction($params["name"], ['form_data'=>$post_vals,'response'=>$result,'head'=>$head], "Request");
 
 	$response_code='';
 
 
     if ($err_no) {
-        $response_code = 'PayTR bir hatayla karşılaştı, Curl ' . $err_no;
+        $response_code = 'PayTR bir hatayla karşılaştı C' . $err_no;
     } else {
         $result = json_decode($result, true);
 
@@ -244,10 +263,17 @@ function payprocc_remoteinput($params) {
            // $response_code = '<iframe src="https://www.paytr.com/odeme/guvenli/' . $token . '" style="width: 100%;min-height: 600px"></iframe>';
             $response_code='<form method="get" action="https://www.paytr.com/odeme/guvenli/' . $token . '"><noscript><input type="submit" value="Click here to continue"></noscript></form>';
         } else {
-            $response_code = 'PayTR bir hatayla karşılaştı, Token :' . $result['reason'];
+            $response_code = 'PayTR bir hatayla karşılaştı ' . $result['reason'];
+            $response_code.='<div style="display:none">'.json_encode($result).'</div>';
         }
     }
 
 	return $response_code;
 
+}
+function payproccc_normalizetr($text) {
+$text = trim($text);
+$search = array('Ç','ç','Ğ','ğ','ı','İ','Ö','ö','Ş','ş','Ü','ü');
+$replace = array('c','c','g','g','i','i','o','o','s','s','u','u');
+return preg_replace("/[^A-Za-z0-9 ]/", ' ', str_replace($search,$replace,$text));
 }
