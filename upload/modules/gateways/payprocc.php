@@ -272,8 +272,8 @@ function payprocc_remoteinput($params) {
 
 }
 function payproccc_normalizetr($text) {
-$text = trim($text);
-$search = array('Ç','ç','Ğ','ğ','ı','İ','Ö','ö','Ş','ş','Ü','ü');
-$replace = array('c','c','g','g','i','i','o','o','s','s','u','u');
-return preg_replace("/[^A-Za-z0-9 ]/", ' ', str_replace($search,$replace,$text));
+    $text = trim($text);
+    $search = array('Ç','ç','Ğ','ğ','ı','İ','Ö','ö','Ş','ş','Ü','ü');
+    $replace = array('c','c','g','g','i','i','o','o','s','s','u','u');
+    return preg_replace("/[^A-Za-z0-9 ]/", ' ', str_replace($search,$replace,$text));
 }
