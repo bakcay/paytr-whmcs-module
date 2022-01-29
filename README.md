@@ -2,7 +2,7 @@
 
 This module is simple integration for [WHMCS](https://www.whmcs.com/) on payment gateway module for [PAYTR](https://www.paytr.com/)
 
-Free to use unless keep author watermarks and signatures.
+Free to use while keep author watermarks and signatures.
 
 Translation is not available, some fields may be appear in turkish. Simply you can translate and contribute this repo.
 

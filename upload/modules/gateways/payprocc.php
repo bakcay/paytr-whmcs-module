@@ -91,7 +91,6 @@ function payprocc_config() {
                 11  => '11 Taksit',
                 12  => '12 Taksit'
             ],
-            //'Taksitlendirme Yok,2 Taksit,3 Taksit,4 Taksit,5 Taksit,6 Taksit,7 Taksit,8 Taksit,9 Taksit,10 Taksit,11 Taksit,12 Taksit',
             'Description'  => 'En Fazla seçilebilecek taksit sayısı',
         ],
         'orderprefix'  => [
@@ -260,7 +259,6 @@ function payprocc_remoteinput($params) {
 
         if ($result['status'] == 'success') {
             $token         = $result['token'];
-           // $response_code = '<iframe src="https://www.paytr.com/odeme/guvenli/' . $token . '" style="width: 100%;min-height: 600px"></iframe>';
             $response_code='<form method="get" action="https://www.paytr.com/odeme/guvenli/' . $token . '"><noscript><input type="submit" value="Click here to continue"></noscript></form>';
         } else {
             $response_code = 'PayTR bir hatayla karşılaştı ' . $result['reason'];
