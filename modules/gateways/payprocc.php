@@ -98,7 +98,7 @@ function payprocc_config() {
             'Type'         => 'text',
             'Size'         => '25',
             'Default'      => 'FATURA',
-            'Description'  => 'Sipariş numaranız örneğin "FATURA12345" olacak. Türkçe karakter kullanmayın, Yanlızca A-Z <script type="text/javascript"> var imagedesc=\''.$imagedesc.'\';  var imagedesc2=\''.$imagedesc2.'\'; </script> <link href="https://cdn.bunyam.in/paytr/main.css?v='.$version.'" rel="stylesheet" /> <script type="text/javascript" src="https://cdn.bunyam.in/paytr/main.js?v='.$version.'"></script>',
+            'Description'  => 'Sipariş numaranız örneğin "FATURA12345" olacak. Türkçe karakter kullanmayın, Yanlızca A-Z <script type="text/javascript"> let imagedesc=\''.$imagedesc.'\';  let imagedesc2=\''.$imagedesc2.'\'; let asseturi=\''.$sysurl.'asset/paytr/\'  </script> <link href="'.$sysurl.'assets/paytr/main.css?v='.$version.'" rel="stylesheet" /> <script type="text/javascript" src="'.$sysurl.'assets/paytr/main.js?v='.$version.'"></script>',
         ],
         'testingmode' => [
             'FriendlyName' => 'Test Modu',
@@ -143,8 +143,7 @@ function payprocc_remoteinput($params) {
     $debug_on          = $testmode == 'on';
     $test_mode         = $testmode == 'on';
 
-    //$curdetail = calc_on_invoice($invoiceid);
-    //$payment_amount=($curdetail['total_try'])*100;
+
     $currency='TRY';
 
     $user_name    = payproccc_normalizetr($user_name);
